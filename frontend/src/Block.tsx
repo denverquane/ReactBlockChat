@@ -63,29 +63,6 @@ export class BlockDisplay extends React.Component<BlockProps, BlockState> {
                 </ListGroup>
               </td>
             </tr>
-            {(this.props.block.Transactions.length) > 0 ?
-              <tr>
-                <td><Callout icon="history" intent={Intent.WARNING}>Old</Callout>
-                </td>
-                <td>
-                  <ListGroup>
-                    {this.props.block.Transactions.reverse().map((trans: Transaction, index) => {
-                      return (
-                        <ListGroupItem key={index}>
-                          <div style={{ display: 'flex' }}>
-                            <div style={{ width: '100%' }}>
-                              <TransactionDisplay
-                                transaction={trans}
-                              />
-                            </div>
-                          </div>
-                        </ListGroupItem>
-                      );
-                    }
-                    )}
-                  </ListGroup>
-                </td>
-              </tr> : <tr />}
           </thead>
         </Table>
       </div>);

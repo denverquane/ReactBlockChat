@@ -33,7 +33,6 @@ export class InputTransaction extends React.Component<InputProps, InputState> {
             transaction: {
                 Username: 'username',
                 Password: 'password',
-                Channel: 'channel',
                 Message: 'message',
                 TransactionType: 'ADD_MESSAGE'
             }
