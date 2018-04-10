@@ -4,17 +4,17 @@ import './App.css';
 import { Transaction } from './Transaction';
 import { ChainDisplay } from './BlockChain';
 import { InputTransaction } from './InputTransaction';
+import { ChannelSwitch } from './channelSwitch';
 import {
   Button,
   // Toaster, Position, 
   Intent, Callout,
-  Menu, MenuItem,
 } from '@blueprintjs/core';
 
 // import { Panel } from 'react-bootstrap';
 
 const logo = require('./logo.svg');
-const BACKEND_IP = 'http://localhost:8040';
+export const BACKEND_IP = 'http://localhost:8040';
 
 // const MyToaster = Toaster.create({
 //   className: 'my-toaster', 
@@ -33,7 +33,6 @@ interface Block {
 }
 
 interface SampleState {
-  channels: string[];
   currentChannel: string;
   blocks: Block[];
   users: string[];
@@ -46,7 +45,6 @@ export default class App extends React.Component<SampleProps, SampleState> {
     super(props);
 
     this.state = {
-      channels: [],
       currentChannel: 'TEST_CHANNEL',
       blocks: [],
       users: [],
@@ -54,14 +52,11 @@ export default class App extends React.Component<SampleProps, SampleState> {
     };
     this.getBlocksForChannel = this.getBlocksForChannel.bind(this);
     this.getUsersForChannel = this.getUsersForChannel.bind(this);
-    this.getChannels = this.getChannels.bind(this);
   }
 
   componentDidMount() {
-    this.getChannels();
-    this.getUsersForChannel(this.state.currentChannel);
-    this.getBlocksForChannel(this.state.currentChannel);
-    /*tslint:disable*/
+    this.getUsersForChannel();
+    this.getBlocksForChannel();
   }
 
   render() {
@@ -72,7 +67,7 @@ export default class App extends React.Component<SampleProps, SampleState> {
           BACKEND_IP={BACKEND_IP}
           onClose={() => {
             this.setState({ openOverlay: false });
-            this.getBlocksForChannel(this.state.currentChannel);
+            this.getBlocksForChannel();
           }}
         />
         <header className="App-header">
@@ -82,8 +77,7 @@ export default class App extends React.Component<SampleProps, SampleState> {
         <Button
           intent={Intent.SUCCESS}
           onClick={() => {
-            this.getBlocksForChannel(this.state.currentChannel);
-            this.getChannels();
+            this.getBlocksForChannel();
           }}
         >
           Update
@@ -91,12 +85,19 @@ export default class App extends React.Component<SampleProps, SampleState> {
         <Button
           onClick={() => {
             this.setState({ openOverlay: true });
-            this.getBlocksForChannel(this.state.currentChannel);
+            this.getBlocksForChannel();
           }}
         >Add Transaction
         </Button>
         <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-          {this.getChannelMenuItems()}
+          <ChannelSwitch
+            initialChannel={this.state.currentChannel}
+            onChange={(channel: string) => {
+              this.setState({currentChannel: channel});
+              this.getBlocksForChannel();
+              this.getUsersForChannel();
+            }}
+          />
           <div>
             <div>{this.renderUsers()}</div>
             <ChainDisplay blocks={this.state.blocks} />
@@ -107,8 +108,9 @@ export default class App extends React.Component<SampleProps, SampleState> {
     );
   }
 
-  getBlocksForChannel(channel: string) {
-    fetch(BACKEND_IP + '/' + channel)
+  // TODO Don't have this, or getUsers affect the state! Make them pure functions
+  getBlocksForChannel() {
+    fetch(BACKEND_IP + '/' + this.state.currentChannel)
       .then(results => {
         return results.json();
       }).then(data => {
@@ -120,8 +122,9 @@ export default class App extends React.Component<SampleProps, SampleState> {
       });
   }
 
-  getUsersForChannel(channel: string) {
-    fetch(BACKEND_IP + '/' + channel + '/users')
+  // TODO Make pure
+  getUsersForChannel() {
+    fetch(BACKEND_IP + '/' + this.state.currentChannel + '/users')
       .then(results => {
         return results.json();
       }).then(data => {
@@ -131,41 +134,6 @@ export default class App extends React.Component<SampleProps, SampleState> {
         let newState = { users: users };
         this.setState(newState);
       });
-  }
-
-  //TODO put into a separate component, independant of the chain/block display
-  getChannels() {
-    fetch(BACKEND_IP + '/channels')
-      .then(results => {
-        return results.json();
-      }).then(data => {
-        let channels = data.map((chan: string) => {
-          return chan;
-        })
-
-        let newState = { channels: channels };
-        this.setState(newState);
-      });
-  }
-
-  getChannelMenuItems() {
-    return (
-    <Menu>
-      {this.state.channels.map((channel: string, index: number) => {
-        return (
-          <MenuItem key={index}
-            text={channel}
-            onClick = { () => {
-              this.setState({currentChannel: channel});
-              this.getBlocksForChannel(channel);
-              this.getUsersForChannel(channel);
-            }
-            }
-          />
-        );
-      })}
-    </Menu>
-    );
   }
 
   renderUsers() {

@@ -12,7 +12,7 @@ export interface AuthTransaction {
   Username: string;
   Password: string;
   Message: string;
-  TransactionType: string | number;
+  TransactionType: string;
 }
 
 interface TransactionProps {
@@ -39,8 +39,8 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
                 <th>Message</th>
               </tr>
               <tr>
-                <td style={{ width: '20%' }}>{this.renderTransType(this.props.transaction.TransactionType)}</td>
-                <td style={{ width: '60%' }}>{this.props.transaction.Message}</td>
+                <td style={{ width: '25%' }}>{this.renderTransType(this.props.transaction.TransactionType)}</td>
+                <td style={{ width: '75%' }}>{this.props.transaction.Message}</td>
               </tr>
             </thead>
           </Table>
