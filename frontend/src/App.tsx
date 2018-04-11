@@ -55,8 +55,8 @@ export default class App extends React.Component<SampleProps, SampleState> {
   }
 
   componentDidMount() {
-    this.getUsersForChannel();
-    this.getBlocksForChannel();
+    this.getUsersForChannel(this.state.currentChannel);
+    this.getBlocksForChannel(this.state.currentChannel);
   }
 
   render() {
@@ -66,8 +66,9 @@ export default class App extends React.Component<SampleProps, SampleState> {
           isOverlayOpen={this.state.openOverlay}
           BACKEND_IP={BACKEND_IP}
           onClose={() => {
-            this.setState({ openOverlay: false });
-            this.getBlocksForChannel();
+            this.setState(
+              { ...this.state, openOverlay: false },
+              () => this.getBlocksForChannel(this.state.currentChannel));
           }}
         />
         <header className="App-header">
@@ -77,15 +78,14 @@ export default class App extends React.Component<SampleProps, SampleState> {
         <Button
           intent={Intent.SUCCESS}
           onClick={() => {
-            this.getBlocksForChannel();
+            this.getBlocksForChannel(this.state.currentChannel);
           }}
         >
           Update
         </Button>
         <Button
           onClick={() => {
-            this.setState({ openOverlay: true });
-            this.getBlocksForChannel();
+            this.setState({ openOverlay: true }, () => this.getBlocksForChannel(this.state.currentChannel));
           }}
         >Add Transaction
         </Button>
@@ -93,9 +93,9 @@ export default class App extends React.Component<SampleProps, SampleState> {
           <ChannelSwitch
             initialChannel={this.state.currentChannel}
             onChange={(channel: string) => {
-              this.setState({currentChannel: channel});
-              this.getBlocksForChannel();
-              this.getUsersForChannel();
+              this.setState({ ...this.state, currentChannel: channel }, () => {
+                this.getUsersForChannel(channel); this.getBlocksForChannel(channel); 
+              });
             }}
           />
           <div>
@@ -108,8 +108,7 @@ export default class App extends React.Component<SampleProps, SampleState> {
     );
   }
 
-  // TODO Don't have this, or getUsers affect the state! Make them pure functions
-  getBlocksForChannel() {
+  getBlocksForChannel(channel: string) {
     fetch(BACKEND_IP + '/' + this.state.currentChannel)
       .then(results => {
         return results.json();
@@ -122,8 +121,7 @@ export default class App extends React.Component<SampleProps, SampleState> {
       });
   }
 
-  // TODO Make pure
-  getUsersForChannel() {
+  getUsersForChannel(channel: string) {
     fetch(BACKEND_IP + '/' + this.state.currentChannel + '/users')
       .then(results => {
         return results.json();

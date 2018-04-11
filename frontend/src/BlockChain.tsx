@@ -6,14 +6,13 @@ import {
   ListGroupItem,
 } from 'react-bootstrap';
 
-// import { Button } from 'react-bootstrap/lib/InputGroup';
-
 interface ChainProps {
   blocks: Block[];
 }
 
 interface ChainState {
   isOpen: boolean;
+  blocks: Block[];
 }
 
 export class ChainDisplay extends React.Component<ChainProps, ChainState> {
@@ -21,14 +20,13 @@ export class ChainDisplay extends React.Component<ChainProps, ChainState> {
     super(props);
 
     this.state = {
-      isOpen: true
+      isOpen: true,
+      blocks: props.blocks
     };
   }
 
   componentWillReceiveProps(newProps: ChainProps) {
-    if (newProps.blocks.length > this.props.blocks.length) {
-      this.props = newProps;
-    }
+    this.setState({blocks: newProps.blocks});
   }
 
   render() {
@@ -36,9 +34,9 @@ export class ChainDisplay extends React.Component<ChainProps, ChainState> {
       <div>
         <ListGroup>
           {
-            this.props.blocks.map((block: Block) => {
+            this.state.blocks.map((block: Block, index: number) => {
               return (
-                (<ListGroupItem key={block.Index}>
+                (<ListGroupItem key={index}>
                   <BlockDisplay
                     block={block}
                   />

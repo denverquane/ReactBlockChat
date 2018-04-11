@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import {
-  Menu, MenuItem
+  Menu, MenuItem, Intent
 } from '@blueprintjs/core';
 
 import { BACKEND_IP } from './App';
@@ -39,6 +39,7 @@ export class ChannelSwitch extends React.Component<ChannelSwitchProps, ChannelSt
               key={index}
               text={channel}
               disabled={this.state.currentChannel === channel}
+              intent={Intent.PRIMARY}
               onClick={() => {
                 if (channel !== this.state.currentChannel) {
                   this.setState({ currentChannel: channel });
