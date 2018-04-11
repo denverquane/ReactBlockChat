@@ -3,7 +3,6 @@ import * as React from 'react';
 import './App.css';
 import { Transaction } from './Transaction';
 import { ChainDisplay } from './BlockChain';
-import { InputTransaction } from './InputTransaction';
 import { ChannelSwitch } from './channelSwitch';
 import {
   Button,
@@ -62,16 +61,6 @@ export default class App extends React.Component<SampleProps, SampleState> {
   render() {
     return (
       <div className="App">
-        <InputTransaction
-          isOverlayOpen={this.state.openOverlay}
-          BACKEND_IP={BACKEND_IP}
-          channel={this.state.currentChannel}
-          onClose={() => {
-            this.setState(
-              { ...this.state, openOverlay: false },
-              () => this.getBlocksForChannel(this.state.currentChannel));
-          }}
-        />
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
         </header>
@@ -90,18 +79,22 @@ export default class App extends React.Component<SampleProps, SampleState> {
           }}
         >Add Transaction
         </Button>
-        <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
           <ChannelSwitch
             initialChannel={this.state.currentChannel}
             onChange={(channel: string) => {
               this.setState({ ...this.state, currentChannel: channel }, () => {
-                this.getUsersForChannel(channel); this.getBlocksForChannel(channel); 
+                this.getUsersForChannel(channel); this.getBlocksForChannel(channel);
               });
             }}
           />
-          <div>
+          <div style={{width: '90%'}}>
             <div>{this.renderUsers()}</div>
-            <ChainDisplay blocks={this.state.blocks} />
+            <ChainDisplay
+              blocks={this.state.blocks}
+              channel={this.state.currentChannel}
+              postTransCallback={this.getBlocksForChannel(this.state.currentChannel)}
+            />
           </div>
         </div>
 

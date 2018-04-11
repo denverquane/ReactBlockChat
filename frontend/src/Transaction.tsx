@@ -40,7 +40,7 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
               </tr>
               <tr>
                 <td style={{ width: '25%' }}>{this.renderTransType(this.props.transaction.TransactionType)}</td>
-                <td style={{ width: '75%' }}>{this.props.transaction.Message}</td>
+                <td style={{ width: '75%', maxWidth: '75%' }}>{this.props.transaction.Message}</td>
               </tr>
             </thead>
           </Table>

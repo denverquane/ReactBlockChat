@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Block, BlockDisplay } from './Block';
+import { InputTransaction } from './InputTransaction';
 
 import {
   ListGroup,
@@ -8,6 +9,8 @@ import {
 
 interface ChainProps {
   blocks: Block[];
+  channel: string;
+  postTransCallback: void;
 }
 
 interface ChainState {
@@ -26,25 +29,32 @@ export class ChainDisplay extends React.Component<ChainProps, ChainState> {
   }
 
   componentWillReceiveProps(newProps: ChainProps) {
-    this.setState({blocks: newProps.blocks});
+    this.setState({ blocks: newProps.blocks });
   }
 
   render() {
     return (
       <div>
         <ListGroup>
-          {
-            this.state.blocks.map((block: Block, index: number) => {
-              return (
-                (<ListGroupItem key={index}>
-                  <BlockDisplay
-                    block={block}
-                  />
-                </ListGroupItem>
-                )
-              );
-            })
-          }
+
+          <ListGroupItem>
+          <InputTransaction
+            channel={this.props.channel}
+            onPost={this.props.postTransCallback}
+          />
+            </ListGroupItem>
+
+          {this.state.blocks.map((block: Block, index: number) => {
+            return (
+              (<ListGroupItem key={index}>
+                <BlockDisplay
+                  block={block}
+                />
+              </ListGroupItem>
+              )
+            );
+          })}
+
         </ListGroup>
       </div>
     );

@@ -26,7 +26,7 @@ interface BlockState {
 export class BlockDisplay extends React.Component<BlockProps, BlockState> {
   render() {
     return (
-      <div style={{ display: 'flex', flexAlign: 'center', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', flexAlign: 'center', flexDirection: 'column', maxWidth: '100%' }}>
         <Table>
           <thead>
             <tr>
@@ -52,7 +52,7 @@ export class BlockDisplay extends React.Component<BlockProps, BlockState> {
                   <ListGroupItem>
                     <div style={{ display: 'flex' }}>
 
-                      <div style={{ width: '100%' }}>
+                      <div style={{ width: '100%', maxWidth: '100%' }}>
                         <TransactionDisplay
                           transaction={this.props.block.Transactions.pop()}
                         />
