@@ -65,6 +65,7 @@ export default class App extends React.Component<SampleProps, SampleState> {
         <InputTransaction
           isOverlayOpen={this.state.openOverlay}
           BACKEND_IP={BACKEND_IP}
+          channel={this.state.currentChannel}
           onClose={() => {
             this.setState(
               { ...this.state, openOverlay: false },

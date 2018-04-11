@@ -17,6 +17,7 @@ import { AuthTransaction } from './Transaction';
 interface InputProps {
     isOverlayOpen: boolean;
     BACKEND_IP: string;
+    channel: string;
     onClose: () => void;
 }
 
@@ -90,7 +91,7 @@ export class InputTransaction extends React.Component<InputProps, InputState> {
 
                         <Button
                             onClick={() => {
-                                fetch(this.props.BACKEND_IP + '/postTransaction', {
+                                fetch(this.props.BACKEND_IP + '/' + this.props.channel, {
                                     method: 'POST',
                                     mode: 'no-cors',
                                     headers: {
