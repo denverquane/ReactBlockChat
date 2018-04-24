@@ -4,6 +4,8 @@ import {
   Button,
   EditableText,
   Classes,
+ // Position, Toaster, 
+ // Intent
 } from '@blueprintjs/core';
 
 import {
@@ -15,13 +17,13 @@ import { BACKEND_IP } from './App';
 import { AuthTransaction } from './Transaction';
 
 interface InputProps {
-  channel: string;
-  onPost: void;
 }
 
 interface InputState {
   transaction: AuthTransaction;
 }
+
+// const MyToaster = Toaster.create({ className: 'myToaster', position: Position.TOP });
 
 export class InputTransaction extends React.Component<InputProps, InputState> {
 
@@ -30,16 +32,16 @@ export class InputTransaction extends React.Component<InputProps, InputState> {
 
     this.state = {
       transaction: {
-        Username: 'username',
-        Password: 'password',
-        Message: 'message',
-        TransactionType: 'ADD_MESSAGE'
+        OriginPubKeyX: '41465825910018896748506442457299597466934834109962972962658476739222369973795',
+        OriginPubKeyY: '59682448553058160470866529273575025018646442288865005510432207524813798486893',
+        OriginAddress: '05+tccYNwv6kwMDHFHLhpT2+syGQYhcvZrIUGMkj9vE=',
+        SignedMsg: 'dsfgsd',
+        TxRef: [],
+        R: '83272896655727237885461857009977546962509371591045400188157617593583499140053',
+        S: '77837220821200439760189315101894538440367033391263344979880555787602867385798',
+        DestAddr: 'UVoty8GhdxPK4ZfxNUGIGSmDcumFGk4+3Sc8R1e7D08=',
       }
     };
-  }
-
-  componentWillReceiveProps(newProps: InputProps) {
-    this.props = newProps;
   }
 
   render() {
@@ -58,55 +60,109 @@ export class InputTransaction extends React.Component<InputProps, InputState> {
             <div >
               <div style={{ dislay: 'flex', flexDirection: 'row' }}>
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <h5>Username:</h5>
+                  <h5>OriginPubKeyX:</h5>
                   <EditableText
-                    multiline={true}
-                    placeholder={this.state.transaction.Username}
+                    defaultValue={this.state.transaction.OriginPubKeyX}
                     confirmOnEnterKey={true}
                     onConfirm={(val: string) => {
                       this.setState({
                         transaction: {
                           ...this.state.transaction,
-                          Username: val
+                          OriginPubKeyX: val
                         }
                       });
                     }}
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <h5>Password:</h5>
+                  <h5>OriginPubKeyY:</h5>
                   <EditableText
-                    placeholder={this.state.transaction.Password}
+                    defaultValue={this.state.transaction.OriginPubKeyY}
                     confirmOnEnterKey={true}
                     onConfirm={(val: string) => {
                       this.setState({
                         transaction: {
                           ...this.state.transaction,
-                          Password: val
+                          OriginPubKeyY: val
                         }
                       });
                     }}
                   />
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'row', height: '100px', width: '90%' }}>
-                <h5>Message:</h5>
+              <div style={{ display: 'flex', flexDirection: 'row', }}>
+                <h5>OriginAddress:</h5>
                 <EditableText
-                  placeholder={this.state.transaction.Message}
+                  defaultValue={this.state.transaction.OriginAddress}
                   confirmOnEnterKey={true}
                   onConfirm={(val: string) => {
                     this.setState({
                       transaction: {
                         ...this.state.transaction,
-                        Message: val
+                        OriginAddress: val
                       }
                     });
                   }}
-                  /*tslint:disable*/
-                  multiline
-                  /*tsline:enable*/
-                  minLines={3}
-                  maxLines={4}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', }}>
+                <h5>SignedMessage:</h5>
+                <EditableText
+                  defaultValue={this.state.transaction.SignedMsg}
+                  confirmOnEnterKey={true}
+                  onConfirm={(val: string) => {
+                    this.setState({
+                      transaction: {
+                        ...this.state.transaction,
+                        SignedMsg: val
+                      }
+                    });
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', }}>
+                <h5>R:</h5>
+                <EditableText
+                  defaultValue={this.state.transaction.R}
+                  confirmOnEnterKey={true}
+                  onConfirm={(val: string) => {
+                    this.setState({
+                      transaction: {
+                        ...this.state.transaction,
+                        R: val
+                      }
+                    });
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', }}>
+                <h5>S:</h5>
+                <EditableText
+                  defaultValue={this.state.transaction.S}
+                  confirmOnEnterKey={true}
+                  onConfirm={(val: string) => {
+                    this.setState({
+                      transaction: {
+                        ...this.state.transaction,
+                        S: val
+                      }
+                    });
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', }}>
+                <h5>Destination:</h5>
+                <EditableText
+                  defaultValue={this.state.transaction.DestAddr}
+                  confirmOnEnterKey={true}
+                  onConfirm={(val: string) => {
+                    this.setState({
+                      transaction: {
+                        ...this.state.transaction,
+                        DestAddr: val
+                      }
+                    });
+                  }}
                 />
               </div>
             </div>
@@ -114,7 +170,7 @@ export class InputTransaction extends React.Component<InputProps, InputState> {
 
           <Button
             onClick={() => {
-              fetch(BACKEND_IP + '/' + this.props.channel, {
+              fetch(BACKEND_IP + '/addTransaction', {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: {
@@ -126,16 +182,18 @@ export class InputTransaction extends React.Component<InputProps, InputState> {
                   this.state.transaction
                 )
               })
-                .then(results => {
-                  return results;
-                }).then(data => {
-                  // let blocks = data.Blocks.map((block: string) => {
-                  //     return block;
-                  // });
-                  /*tslint:disable*/
-                  console.log({ data });
-                  this.props.onPost;
-                });
+              // TODO Need to fix CORS before the filtering by response will work...
+                .then(response => {
+                  // if (response.ok) {
+                    // response.json().then(json => {
+                      
+                        /*tslint:disable*/
+                        console.log({ response });
+                      // });
+                  //   } else {
+                  //   MyToaster.show({ message: 'Invalid Transaction', intent: Intent.DANGER })
+                  // }
+                })
             }}
           >
             Post Transaction

@@ -9,8 +9,6 @@ import {
 
 interface ChainProps {
   blocks: Block[];
-  channel: string;
-  postTransCallback: void;
 }
 
 interface ChainState {
@@ -39,8 +37,7 @@ export class ChainDisplay extends React.Component<ChainProps, ChainState> {
 
           <ListGroupItem>
           <InputTransaction
-            channel={this.props.channel}
-            onPost={this.props.postTransCallback}
+            // onPost={this.props.postTransCallback}
           />
             </ListGroupItem>
 

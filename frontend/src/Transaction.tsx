@@ -1,18 +1,26 @@
 import * as React from 'react';
 import { Table } from 'react-bootstrap';
-import { Callout, IconName, Intent } from '@blueprintjs/core';
+// import { Callout, IconName, Intent } from '@blueprintjs/core';
 
 export interface Transaction {
-  Username: string;
-  Message: string;
-  TransactionType: number;
+  OriginAddr: string;
+  SignedPayload: {
+    Simple: string,
+    R: string,
+    S: string
+  };
+  Destination: string;
 }
 
 export interface AuthTransaction {
-  Username: string;
-  Password: string;
-  Message: string;
-  TransactionType: string;
+  OriginPubKeyX: string;
+  OriginPubKeyY: string;
+  OriginAddress: string;
+  SignedMsg: string;
+  TxRef: string[];
+  R: string;
+  S: string;
+  DestAddr: string;
 }
 
 interface TransactionProps {
@@ -35,12 +43,14 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
           <Table condensed={true}>
             <thead>
               <tr>
-                <th>Type</th>
+                <th>Origin</th>
                 <th>Message</th>
+                <th>Destination</th>
               </tr>
               <tr>
-                <td style={{ width: '25%' }}>{this.renderTransType(this.props.transaction.TransactionType)}</td>
-                <td style={{ width: '75%', maxWidth: '75%' }}>{this.props.transaction.Message}</td>
+                <td style={{ width: '25%' }}>{this.props.transaction.OriginAddr}</td>
+                <td style={{ width: '25%', maxWidth: '25%' }}>{this.props.transaction.SignedPayload.Simple}</td>
+                <td style={{ width: '25%', maxWidth: '25%' }}>{this.props.transaction.Destination}</td>
               </tr>
             </thead>
           </Table>
@@ -59,37 +69,5 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
         </div>
       );
     }
-  }
-
-  renderTransType(type: number) {
-    var iconn: IconName;
-    var text: string;
-    var intent: Intent;
-
-    switch (type) {
-      case 1:
-        iconn = 'add';
-        text = 'Add Message';
-        intent = Intent.SUCCESS;
-        break;
-      case 3:
-        iconn = 'trash';
-        text = 'Delete Message';
-        intent = Intent.DANGER;
-        break;
-      case 4:
-        iconn = 'new-person';
-        text = 'Add User';
-        intent = Intent.SUCCESS;
-        break;
-      default:
-        iconn = 'cross';
-        text = 'INVALID';
-        intent = Intent.DANGER;
-        break;
-    }
-    return (
-      <Callout icon={iconn} intent={intent}>{text}</Callout>
-    );
   }
 }

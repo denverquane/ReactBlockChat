@@ -3,11 +3,10 @@ import * as React from 'react';
 import './App.css';
 import { Transaction } from './Transaction';
 import { ChainDisplay } from './BlockChain';
-import { ChannelSwitch } from './channelSwitch';
 import {
   Button,
   // Toaster, Position, 
-  Intent, Callout,
+  Intent,
 } from '@blueprintjs/core';
 
 // import { Panel } from 'react-bootstrap';
@@ -32,9 +31,7 @@ interface Block {
 }
 
 interface SampleState {
-  currentChannel: string;
   blocks: Block[];
-  users: string[];
   openOverlay: boolean;
 }
 
@@ -44,18 +41,14 @@ export default class App extends React.Component<SampleProps, SampleState> {
     super(props);
 
     this.state = {
-      currentChannel: 'TEST_CHANNEL',
       blocks: [],
-      users: [],
       openOverlay: false,
     };
-    this.getBlocksForChannel = this.getBlocksForChannel.bind(this);
-    this.getUsersForChannel = this.getUsersForChannel.bind(this);
+    this.getBlocks = this.getBlocks.bind(this);
   }
 
   componentDidMount() {
-    this.getUsersForChannel(this.state.currentChannel);
-    this.getBlocksForChannel(this.state.currentChannel);
+    this.getBlocks();
   }
 
   render() {
@@ -68,32 +61,15 @@ export default class App extends React.Component<SampleProps, SampleState> {
         <Button
           intent={Intent.SUCCESS}
           onClick={() => {
-            this.getBlocksForChannel(this.state.currentChannel);
+            this.getBlocks();
           }}
         >
           Update
         </Button>
-        <Button
-          onClick={() => {
-            this.setState({ openOverlay: true }, () => this.getBlocksForChannel(this.state.currentChannel));
-          }}
-        >Add Transaction
-        </Button>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <ChannelSwitch
-            initialChannel={this.state.currentChannel}
-            onChange={(channel: string) => {
-              this.setState({ ...this.state, currentChannel: channel }, () => {
-                this.getUsersForChannel(channel); this.getBlocksForChannel(channel);
-              });
-            }}
-          />
-          <div style={{width: '90%'}}>
-            <div>{this.renderUsers()}</div>
+          <div style={{width: '100%'}}>
             <ChainDisplay
               blocks={this.state.blocks}
-              channel={this.state.currentChannel}
-              postTransCallback={this.getBlocksForChannel(this.state.currentChannel)}
             />
           </div>
         </div>
@@ -102,44 +78,20 @@ export default class App extends React.Component<SampleProps, SampleState> {
     );
   }
 
-  getBlocksForChannel(channel: string) {
-    fetch(BACKEND_IP + '/' + this.state.currentChannel)
+  getBlocks() {
+    fetch(BACKEND_IP)
       .then(results => {
         return results.json();
       }).then(data => {
         let blocks = data.Blocks.map((block: Block) => {
           return block;
         });
-        let newState = { blocks: blocks.reverse() };
-        this.setState(newState);
+        if (this.state.blocks !== blocks) {
+          this.setState({blocks: blocks.reverse()});
+        } else {
+          /*tslint:disable*/
+          console.log('My length:' + this.state.blocks.length + ' his: ' + blocks.length);
+        }
       });
-  }
-
-  getUsersForChannel(channel: string) {
-    fetch(BACKEND_IP + '/' + this.state.currentChannel + '/users')
-      .then(results => {
-        return results.json();
-      }).then(data => {
-        let users = data.map((user: string) => {
-          return user.split(':')[0]; // extract the name, not the hashed credentials
-        });
-        let newState = { users: users };
-        this.setState(newState);
-      });
-  }
-
-  renderUsers() {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <Callout icon={null} intent={Intent.PRIMARY} style={{ marginRight: '1%', width: '20%' }}>
-          Authorized Users:
-        </Callout>
-        {this.state.users.map((user: string, index: number) => {
-          return (
-            <Callout key={index} style={{ width: '10%', marginRight: '1%' }}>{user}</Callout>
-          );
-        })}
-      </div >
-    );
   }
 }

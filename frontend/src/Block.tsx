@@ -38,7 +38,7 @@ export class BlockDisplay extends React.Component<BlockProps, BlockState> {
                 <Callout
                   icon={null}
                   title={this.props.block.Transactions[0]
-                    ? '\'' + this.props.block.Transactions[0].Username + '\' added on ' + this.props.block.Timestamp
+                    ? '\'' + this.props.block.Transactions[0].OriginAddr + '\' added on ' + this.props.block.Timestamp
                     : 'Chain created on ' + this.props.block.Timestamp}
                   intent={Intent.PRIMARY}
                 />
