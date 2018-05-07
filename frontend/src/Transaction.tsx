@@ -3,13 +3,18 @@ import { Table } from 'react-bootstrap';
 // import { Callout, IconName, Intent } from '@blueprintjs/core';
 
 export interface Transaction {
-  OriginAddr: string;
-  SignedPayload: {
-    Simple: string,
+  SignedTrans: {
+    Origin: {
+      PubKeyX: string,
+      PubKeyY: string,
+      Address: string
+    }
+    DestAddr: string,
+    Quantity: string,
+    Payload: string,
     R: string,
     S: string
   };
-  Destination: string;
 }
 
 export interface AuthTransaction {
@@ -44,13 +49,15 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
             <thead>
               <tr>
                 <th>Origin</th>
+                <th>Quantity</th>
                 <th>Message</th>
                 <th>Destination</th>
               </tr>
               <tr>
-                <td style={{ width: '25%' }}>{this.props.transaction.OriginAddr}</td>
-                <td style={{ width: '25%', maxWidth: '25%' }}>{this.props.transaction.SignedPayload.Simple}</td>
-                <td style={{ width: '25%', maxWidth: '25%' }}>{this.props.transaction.Destination}</td>
+                <td style={{ width: '25%' }}>{this.props.transaction.SignedTrans.Origin.Address}</td>
+                <td style={{ width: '25%' }}>{this.props.transaction.SignedTrans.Quantity}</td>
+                <td style={{ width: '25%', maxWidth: '25%' }}>{this.props.transaction.SignedTrans.Payload}</td>
+                <td style={{ width: '25%', maxWidth: '25%' }}>{this.props.transaction.SignedTrans.DestAddr}</td>
               </tr>
             </thead>
           </Table>
