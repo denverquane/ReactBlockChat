@@ -3,18 +3,16 @@ import { Table } from 'react-bootstrap';
 // import { Callout, IconName, Intent } from '@blueprintjs/core';
 
 export interface Transaction {
-  SignedTrans: {
     Origin: {
       PubKeyX: string,
       PubKeyY: string,
       Address: string
-    }
-    DestAddr: string,
-    Quantity: string,
-    Payload: string,
-    R: string,
-    S: string
-  };
+    };
+    Transaction: string;
+    TransactionType: string;
+    R: string;
+    S: string;
+    TxID: string;
 }
 
 export interface AuthTransaction {
@@ -48,16 +46,16 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
           <Table condensed={true}>
             <thead>
               <tr>
+                <th>TxID</th>
                 <th>Origin</th>
-                <th>Quantity</th>
-                <th>Message</th>
-                <th>Destination</th>
+                <th>Type</th>
+                {/* <th>Transaction</th> */}
               </tr>
               <tr>
-                <td style={{ width: '25%' }}>{this.props.transaction.SignedTrans.Origin.Address}</td>
-                <td style={{ width: '25%' }}>{this.props.transaction.SignedTrans.Quantity}</td>
-                <td style={{ width: '25%', maxWidth: '25%' }}>{this.props.transaction.SignedTrans.Payload}</td>
-                <td style={{ width: '25%', maxWidth: '25%' }}>{this.props.transaction.SignedTrans.DestAddr}</td>
+                <td style={{ width: '20%' }}>{this.props.transaction.TxID}</td>
+                <td style={{ width: '20%' }}>{this.props.transaction.Origin.Address}</td>
+                <td style={{ width: '10%' }}>{this.props.transaction.TransactionType}</td>
+                {/* <td style={{ width: '50%' }}>{this.props.transaction.Transaction}</td> */}
               </tr>
             </thead>
           </Table>

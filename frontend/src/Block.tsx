@@ -13,6 +13,8 @@ export interface Block {
   Transactions: Transaction[];
   Hash: string;
   PrevHash: string;
+  Difficulty: number;
+  Nonce: string;
 }
 
 interface BlockProps {
@@ -26,7 +28,7 @@ interface BlockState {
 export class BlockDisplay extends React.Component<BlockProps, BlockState> {
   render() {
     return (
-      <div style={{ display: 'flex', flexAlign: 'center', flexDirection: 'column', maxWidth: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '100%' }}>
         <Table>
           <thead>
             <tr>

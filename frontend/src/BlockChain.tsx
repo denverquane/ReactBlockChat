@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Block, BlockDisplay } from './Block';
-import { InputTransaction } from './InputTransaction';
 
 import {
   ListGroup,
@@ -34,13 +33,6 @@ export class ChainDisplay extends React.Component<ChainProps, ChainState> {
     return (
       <div>
         <ListGroup>
-
-          <ListGroupItem>
-          <InputTransaction
-            // onPost={this.props.postTransCallback}
-          />
-            </ListGroupItem>
-
           {this.state.blocks.map((block: Block, index: number) => {
             return (
               (<ListGroupItem key={index}>

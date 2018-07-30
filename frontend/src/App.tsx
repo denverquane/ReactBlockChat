@@ -1,18 +1,18 @@
 import * as React from 'react';
 
 import './App.css';
-import { Transaction } from './Transaction';
-import { ChainDisplay } from './BlockChain';
+// import { Transaction } from './Transaction';
 import {
   Button,
   // Toaster, Position, 
   Intent,
 } from '@blueprintjs/core';
+import { BlockDisplay, Block } from './Block';
 
 // import { Panel } from 'react-bootstrap';
 
 const logo = require('./logo.svg');
-export const BACKEND_IP = 'http://localhost:8040';
+export const BLOCKCHAIN_IP = 'http://localhost:5000';
 
 // const MyToaster = Toaster.create({
 //   className: 'my-toaster', 
@@ -20,14 +20,6 @@ export const BACKEND_IP = 'http://localhost:8040';
 // });
 
 interface SampleProps {
-}
-
-interface Block {
-  Index: number;
-  Timestamp: string;
-  Transactions: Transaction[];
-  Hash: string;
-  PrevHash: string;
 }
 
 interface SampleState {
@@ -57,7 +49,7 @@ export default class App extends React.Component<SampleProps, SampleState> {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
         </header>
-        <h1 className="App-title">Welcome to the GoBlockChat!</h1>
+        <h1 className="App-title">Welcome to GoBlockShare!</h1>
         <Button
           intent={Intent.SUCCESS}
           onClick={() => {
@@ -68,9 +60,13 @@ export default class App extends React.Component<SampleProps, SampleState> {
         </Button>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div style={{width: '100%'}}>
-            <ChainDisplay
-              blocks={this.state.blocks}
-            />
+          {this.state.blocks.map((block: Block, index: number) => {
+            return (
+              (
+                <BlockDisplay block={block}/>
+              )
+            );
+          })}
           </div>
         </div>
 
@@ -79,7 +75,7 @@ export default class App extends React.Component<SampleProps, SampleState> {
   }
 
   getBlocks() {
-    fetch(BACKEND_IP)
+    fetch(BLOCKCHAIN_IP + '/blockchain')
       .then(results => {
         return results.json();
       }).then(data => {
@@ -87,7 +83,7 @@ export default class App extends React.Component<SampleProps, SampleState> {
           return block;
         });
         if (this.state.blocks !== blocks) {
-          this.setState({blocks: blocks.reverse()});
+          this.setState({blocks: blocks});
         } else {
           /*tslint:disable*/
           console.log('My length:' + this.state.blocks.length + ' his: ' + blocks.length);
