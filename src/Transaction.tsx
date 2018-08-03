@@ -37,6 +37,19 @@ interface TransactionState {
 export class TransactionDisplay extends React.Component<TransactionProps, TransactionState> {
   constructor(props: TransactionProps) {
     super(props);
+    this.getAlias = this.getAlias.bind(this);
+
+  }
+
+  getAlias = (addr: string) => {
+    let returnData = '';
+    fetch('http://localhost:5000/alias/' + addr)
+      .then(results => {
+        return results.json();
+      }).then(data => {
+        returnData = data;
+      });
+    return returnData;
   }
 
   render() {
@@ -53,7 +66,7 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
               </tr>
               <tr>
                 <td style={{ width: '20%' }}>{this.props.transaction.TxID}</td>
-                <td style={{ width: '20%' }}>{this.props.transaction.Origin.Address}</td>
+                <td style={{ width: '20%' }}>{this.getAlias(this.props.transaction.Origin.Address)}</td>
                 <td style={{ width: '10%' }}>{this.props.transaction.TransactionType}</td>
                 {/* <td style={{ width: '50%' }}>{this.props.transaction.Transaction}</td> */}
               </tr>
