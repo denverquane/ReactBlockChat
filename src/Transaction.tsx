@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Table } from 'react-bootstrap';
+import { RepSummary, ReputationDisplay } from './Reputation';
 // import { Callout, IconName, Intent } from '@blueprintjs/core';
 
 export interface Transaction {
@@ -31,25 +32,53 @@ interface TransactionProps {
 }
 
 interface TransactionState {
+  alias: string;
+  summary: RepSummary | null;
+}
 
+interface Alias {
+  Data: string;
 }
 
 export class TransactionDisplay extends React.Component<TransactionProps, TransactionState> {
   constructor(props: TransactionProps) {
     super(props);
     this.getAlias = this.getAlias.bind(this);
-
+    this.state = {
+      alias: 'NULL',
+      summary: null
+    };
   }
 
   getAlias = (addr: string) => {
-    let returnData = '';
     fetch('http://localhost:5000/alias/' + addr)
       .then(results => {
         return results.json();
       }).then(data => {
-        returnData = data;
+        let aliases = data.map((nalias: Alias) => {
+           return nalias.Data;
+        });
+        this.setState({alias: aliases[0]});
       });
-    return returnData;
+  }
+
+  getReputation = (addr: string) => {
+    fetch('http://localhost:5000/reputation/' + addr) 
+    .then(results => {
+        return results.json();
+      }).then(data => {
+        let reps = data.map((summary: RepSummary) => {
+           return summary;
+        });
+        this.setState({summary: reps[0]});
+      });
+  }
+
+  componentDidMount() {
+    if (this.props.transaction) {
+      this.getAlias(this.props.transaction.Origin.Address);
+      this.getReputation(this.props.transaction.Origin.Address);
+    }
   }
 
   render() {
@@ -61,14 +90,18 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
               <tr>
                 <th>TxID</th>
                 <th>Origin</th>
+                <th>Reputation</th>
                 <th>Type</th>
                 {/* <th>Transaction</th> */}
               </tr>
               <tr>
                 <td style={{ width: '20%' }}>{this.props.transaction.TxID}</td>
-                <td style={{ width: '20%' }}>{this.getAlias(this.props.transaction.Origin.Address)}</td>
+                <td style={{ width: '20%' }}>{this.state.alias === 'NULL' 
+                ? this.props.transaction.Origin.Address : this.state.alias}</td>
+                {<ReputationDisplay
+                  summary={this.state.summary} 
+                />}
                 <td style={{ width: '10%' }}>{this.props.transaction.TransactionType}</td>
-                {/* <td style={{ width: '50%' }}>{this.props.transaction.Transaction}</td> */}
               </tr>
             </thead>
           </Table>
