@@ -47,7 +47,7 @@ export class ReputationDisplay extends React.Component<ReputationProps, Reputati
           <h6>{this.props.address}</h6>
           <p>
             Torrents: 
-            {this.renderTag(this.props.summary.ValidLayerFraction, 'Valid')}
+            {this.renderTag(this.props.summary.ValidTorrFraction, 'Valid')}
             {this.renderTag(this.props.summary.QualityTorrFraction, 'High Quality')}
             {this.renderTag(this.props.summary.AccurateTorrFraction, 'Accurate')}
           </p>
