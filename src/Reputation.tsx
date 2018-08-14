@@ -1,24 +1,16 @@
 import * as React from 'react';
 
-export interface RepSummary {
-  TorrentRep: Map<string, TorrentRep>;
-  LayerRep: Map<string, LayerRep>;
-}
+export interface JSONRepSummary {
+  ValidTorrFraction: number;
+  QualityTorrFraction: number;
+  AccurateTorrFraction: number;
 
-interface TorrentRep {
-  ValidReports: number;
-  QualityReports: number;
-  AccurateReports: number;
-}
-
-interface LayerRep {
-  SharedQuantity: number;
-  NotReceived: number;
-  ValidReports: number;
+  NotReceivedLayerFraction: number;
+  ValidLayerFraction: number;
 }
 
 interface ReputationProps {
-  summary: RepSummary | null;
+  summary: JSONRepSummary | null;
 }
 
 interface ReputationState {
@@ -28,26 +20,26 @@ interface ReputationState {
 export class ReputationDisplay extends React.Component<ReputationProps, ReputationState> {
   constructor(props: ReputationProps) {
     super(props);
-    /*tslint:disable*/
-    console.log(props.summary)
-  }
 
-  componentWillReceiveProps(newProps: ReputationProps) {
-    if (newProps.summary) {
-      console.log(newProps.summary.TorrentRep)
-      console.log(newProps.summary.LayerRep)
-    }
   }
 
   render() {
     if (this.props.summary) {
-      // let vals = this.props.summary.TorrentRep.forEach((value: TorrentRep, key: string) => {
-        
-      //   console.log(key, value);
-      //   return value;
-      // });
-      // console.log(vals);
+      return (
+      <td>
+        <p>
+          Valid: {this.props.summary.ValidTorrFraction * 100 + '% '}
+          Quality: {this.props.summary.QualityTorrFraction * 100 + '% '}
+          Accurate: {this.props.summary.AccurateTorrFraction * 100 + '% '}
+        </p>
+        <p>
+          Received: {(1.0 - this.props.summary.NotReceivedLayerFraction) * 100 + '% '}
+          Valid Reports: {this.props.summary.ValidLayerFraction * 100 + '% '}
+        </p>
+      </td> 
+      );
+    } else {
+      return (<td />);
     }
-    return (<td/>);
   }
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Table } from 'react-bootstrap';
-import { RepSummary, ReputationDisplay } from './Reputation';
+import { JSONRepSummary, ReputationDisplay } from './Reputation';
 // import { Callout, IconName, Intent } from '@blueprintjs/core';
 
 export interface Transaction {
@@ -33,7 +33,7 @@ interface TransactionProps {
 
 interface TransactionState {
   alias: string;
-  summary: RepSummary | null;
+  summary: JSONRepSummary | null;
 }
 
 interface Alias {
@@ -67,7 +67,7 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
     .then(results => {
         return results.json();
       }).then(data => {
-        let reps = data.map((summary: RepSummary) => {
+        let reps = data.map((summary: JSONRepSummary) => {
            return summary;
         });
         this.setState({summary: reps[0]});
@@ -95,7 +95,7 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
                 {/* <th>Transaction</th> */}
               </tr>
               <tr>
-                <td style={{ width: '20%' }}>{this.props.transaction.TxID}</td>
+                <td style={{ width: '20%' }}>{this.props.transaction.TxID.substr(0, 8)}...</td>
                 <td style={{ width: '20%' }}>{this.state.alias === 'NULL' 
                 ? this.props.transaction.Origin.Address : this.state.alias}</td>
                 {<ReputationDisplay
