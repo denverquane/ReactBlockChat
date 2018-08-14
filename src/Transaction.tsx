@@ -1,19 +1,20 @@
 import * as React from 'react';
 import { Table } from 'react-bootstrap';
 import { JSONRepSummary, ReputationDisplay } from './Reputation';
-// import { Callout, IconName, Intent } from '@blueprintjs/core';
+import * as TxTypes from './TxTypes';
+import { Icon } from '@blueprintjs/core';
 
 export interface Transaction {
-    Origin: {
-      PubKeyX: string,
-      PubKeyY: string,
-      Address: string
-    };
-    Transaction: string;
-    TransactionType: string;
-    R: string;
-    S: string;
-    TxID: string;
+  Origin: {
+    PubKeyX: string,
+    PubKeyY: string,
+    Address: string
+  };
+  Transaction: Object;
+  TransactionType: string;
+  R: string;
+  S: string;
+  TxID: string;
 }
 
 export interface AuthTransaction {
@@ -34,6 +35,7 @@ interface TransactionProps {
 interface TransactionState {
   alias: string;
   summary: JSONRepSummary | null;
+  recipSummary: JSONRepSummary | null;
 }
 
 interface Alias {
@@ -46,7 +48,8 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
     this.getAlias = this.getAlias.bind(this);
     this.state = {
       alias: 'NULL',
-      summary: null
+      summary: null,
+      recipSummary: null,
     };
   }
 
@@ -56,52 +59,138 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
         return results.json();
       }).then(data => {
         let aliases = data.map((nalias: Alias) => {
-           return nalias.Data;
+          return nalias.Data;
         });
-        this.setState({alias: aliases[0]});
+        this.setState({ alias: aliases[0] });
       });
   }
 
-  getReputation = (addr: string) => {
-    fetch('http://localhost:5000/reputation/' + addr) 
-    .then(results => {
+  getReputation = (addr: string, recip: boolean) => {
+    fetch('http://localhost:5000/reputation/' + addr)
+      .then(results => {
         return results.json();
       }).then(data => {
         let reps = data.map((summary: JSONRepSummary) => {
-           return summary;
+          return summary;
         });
-        this.setState({summary: reps[0]});
+        if (!recip) {
+          this.setState({ summary: reps[0] });
+        } else {
+          this.setState({ recipSummary: reps[0] });
+        }
       });
   }
 
   componentDidMount() {
     if (this.props.transaction) {
       this.getAlias(this.props.transaction.Origin.Address);
-      this.getReputation(this.props.transaction.Origin.Address);
+      this.getReputation(this.props.transaction.Origin.Address, false);
+      if (this.props.transaction.TransactionType === 'SHARED_LAYER') {
+        this.getReputation((this.props.transaction.Transaction as TxTypes.SharedLayerTrans).Recipient, true);
+      }
+    }
+  }
+
+  renderTransaction(param: Transaction) {
+    switch (param.TransactionType) {
+      case 'SET_ALIAS':
+        return <div>{(param.Transaction as TxTypes.SetAliasTrans).Alias}</div>;
+      case 'SHARED_LAYER':
+        return <div>{(param.Transaction as TxTypes.SharedLayerTrans).SharedLayerHash.substr(0, 10)}...</div>;
+      case 'TORRENT_REP':
+        var rep = (param.Transaction as TxTypes.TorrentRepTrans);
+        /*tslint:disable*/
+        return (
+          <div>
+            <p>Accurate Name: {rep.RepMessage.AccurateName ? <Icon icon="tick" /> : <Icon icon="cross" />}</p>
+            <p>High Quality: {rep.RepMessage.HighQuality ? <Icon icon="tick" /> : <Icon icon="cross" />}</p>
+            <p>Was Valid: {rep.RepMessage.WasValid ? <Icon icon="tick" /> : <Icon icon="cross" />}</p>
+          </div>
+        );
+      case 'PUBLISH_TORRENT':
+        var torr = (param.Transaction as TxTypes.PublishTorrentTrans).Torrent;
+
+        return (
+          <div>
+            <p>Name: '{torr.Name}'</p>
+            <p>Size: {torr.TotalByteSize} bytes</p>
+            <p>Layer Size: {torr.LayerByteSize} bytes</p>
+          </div>
+        );
+      default:
+        return <div />;
+    }
+  }
+
+  renderDestination(param: Transaction) {
+    switch (param.TransactionType) {
+      case 'SET_ALIAS':
+        return <div>{this.state.alias}</div>;
+      case 'SHARED_LAYER':
+        return (
+          <div>
+            <ReputationDisplay address={(param.Transaction as TxTypes.SharedLayerTrans).Recipient} summary={this.state.recipSummary} />
+          </div>
+        );
+      case 'TORRENT_REP':
+        return <div>{(param.Transaction as TxTypes.TorrentRepTrans).TxID.substr(0, 10)}...</div>;
+      default:
+        return <div />;
+    }
+  }
+
+  getIcon(param: string) {
+    switch (param) {
+      case 'SET_ALIAS':
+        return <Icon icon="tag" />;
+      case 'SHARED_LAYER':
+        return <Icon icon="social-media" />;
+      case 'PUBLISH_TORRENT':
+        return <Icon icon="document-share" />;
+      case 'TORRENT_REP':
+        return <Icon icon="chat" />;
+      case 'LAYER_REP':
+        return <Icon icon="chat" />;
+      default:
+        return <Icon icon="blank" />;
     }
   }
 
   render() {
     if (this.props.transaction !== undefined) {
+      var addr = this.state.alias === 'NULL' || this.props.transaction.TransactionType === 'SET_ALIAS'
+      ? this.props.transaction.Origin.Address : this.state.alias
       return (
         <div>
+          <h5>TxID: {this.props.transaction.TxID}</h5>
           <Table condensed={true}>
             <thead>
               <tr>
-                <th>TxID</th>
                 <th>Origin</th>
-                <th>Reputation</th>
-                <th>Type</th>
-                {/* <th>Transaction</th> */}
+                <th>
+                  <div>
+                    {this.getIcon(this.props.transaction.TransactionType)} {this.props.transaction.TransactionType}
+                  </div>
+                </th>
+                <th>{this.props.transaction.TransactionType === 'TORRENT_REP'
+                  || this.props.transaction.TransactionType === 'LAYER_REP' ? 'Tx Reference' : 'Recipient'}</th>
               </tr>
               <tr>
-                <td style={{ width: '20%' }}>{this.props.transaction.TxID.substr(0, 8)}...</td>
-                <td style={{ width: '20%' }}>{this.state.alias === 'NULL' 
-                ? this.props.transaction.Origin.Address : this.state.alias}</td>
-                {<ReputationDisplay
-                  summary={this.state.summary} 
-                />}
-                <td style={{ width: '10%' }}>{this.props.transaction.TransactionType}</td>
+                <td style={{ width: '20%' }}>
+                  {<ReputationDisplay
+                    address={addr}
+                    summary={this.state.summary}
+                  />}
+                </td>
+                <td>
+                  {
+                    this.renderTransaction(this.props.transaction)
+                  }
+                </td>
+                <td>
+                  {this.renderDestination(this.props.transaction)}
+                </td>
+                {/* <td style={{ width: '10%' }}>{this.props.transaction.TransactionType}</td> */}
               </tr>
             </thead>
           </Table>
