@@ -42,6 +42,66 @@ interface Alias {
   Data: string;
 }
 
+export function renderSimpleTransaction(trans: Transaction | undefined) {
+  return (
+    <div>
+      {trans ? trans.Origin.Address : ''}
+       
+      {trans ? getIcon(trans.TransactionType) : ''}
+       
+      {trans ? trans.TransactionType : ''}
+    </div>
+  );
+}
+
+function getIcon(param: string) {
+  switch (param) {
+    case 'SET_ALIAS':
+      return <Icon icon="tag" />;
+    case 'SHARED_LAYER':
+      return <Icon icon="social-media" />;
+    case 'PUBLISH_TORRENT':
+      return <Icon icon="document-share" />;
+    case 'TORRENT_REP':
+      return <Icon icon="chat" />;
+    case 'LAYER_REP':
+      return <Icon icon="chat" />;
+    default:
+      return <Icon icon="blank" />;
+  }
+}
+
+function renderTransaction(param: Transaction) {
+  switch (param.TransactionType) {
+    case 'SET_ALIAS':
+      return <div>{(param.Transaction as TxTypes.SetAliasTrans).Alias}</div>;
+    case 'SHARED_LAYER':
+      return <div>{(param.Transaction as TxTypes.SharedLayerTrans).SharedLayerHash.substr(0, 10)}...</div>;
+    case 'TORRENT_REP':
+      var rep = (param.Transaction as TxTypes.TorrentRepTrans);
+      /*tslint:disable*/
+      return (
+        <div>
+          <p>Accurate Name: {rep.RepMessage.AccurateName ? <Icon icon="tick" /> : <Icon icon="cross" />}</p>
+          <p>High Quality: {rep.RepMessage.HighQuality ? <Icon icon="tick" /> : <Icon icon="cross" />}</p>
+          <p>Was Valid: {rep.RepMessage.WasValid ? <Icon icon="tick" /> : <Icon icon="cross" />}</p>
+        </div>
+      );
+    case 'PUBLISH_TORRENT':
+      var torr = (param.Transaction as TxTypes.PublishTorrentTrans).Torrent;
+
+      return (
+        <div>
+          <p>Name: '{torr.Name}'</p>
+          <p>Size: {torr.TotalByteSize} bytes</p>
+          <p>Layer Size: {torr.LayerByteSize} bytes</p>
+        </div>
+      );
+    default:
+      return <div />;
+  }
+}
+
 export class TransactionDisplay extends React.Component<TransactionProps, TransactionState> {
   constructor(props: TransactionProps) {
     super(props);
@@ -91,37 +151,6 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
     }
   }
 
-  renderTransaction(param: Transaction) {
-    switch (param.TransactionType) {
-      case 'SET_ALIAS':
-        return <div>{(param.Transaction as TxTypes.SetAliasTrans).Alias}</div>;
-      case 'SHARED_LAYER':
-        return <div>{(param.Transaction as TxTypes.SharedLayerTrans).SharedLayerHash.substr(0, 10)}...</div>;
-      case 'TORRENT_REP':
-        var rep = (param.Transaction as TxTypes.TorrentRepTrans);
-        /*tslint:disable*/
-        return (
-          <div>
-            <p>Accurate Name: {rep.RepMessage.AccurateName ? <Icon icon="tick" /> : <Icon icon="cross" />}</p>
-            <p>High Quality: {rep.RepMessage.HighQuality ? <Icon icon="tick" /> : <Icon icon="cross" />}</p>
-            <p>Was Valid: {rep.RepMessage.WasValid ? <Icon icon="tick" /> : <Icon icon="cross" />}</p>
-          </div>
-        );
-      case 'PUBLISH_TORRENT':
-        var torr = (param.Transaction as TxTypes.PublishTorrentTrans).Torrent;
-
-        return (
-          <div>
-            <p>Name: '{torr.Name}'</p>
-            <p>Size: {torr.TotalByteSize} bytes</p>
-            <p>Layer Size: {torr.LayerByteSize} bytes</p>
-          </div>
-        );
-      default:
-        return <div />;
-    }
-  }
-
   renderDestination(param: Transaction) {
     switch (param.TransactionType) {
       case 'SET_ALIAS':
@@ -139,23 +168,6 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
     }
   }
 
-  getIcon(param: string) {
-    switch (param) {
-      case 'SET_ALIAS':
-        return <Icon icon="tag" />;
-      case 'SHARED_LAYER':
-        return <Icon icon="social-media" />;
-      case 'PUBLISH_TORRENT':
-        return <Icon icon="document-share" />;
-      case 'TORRENT_REP':
-        return <Icon icon="chat" />;
-      case 'LAYER_REP':
-        return <Icon icon="chat" />;
-      default:
-        return <Icon icon="blank" />;
-    }
-  }
-
   render() {
     if (this.props.transaction !== undefined) {
       var addr = this.state.alias === 'NULL' || this.props.transaction.TransactionType === 'SET_ALIAS'
@@ -169,7 +181,7 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
                 <th>Origin</th>
                 <th>
                   <div>
-                    {this.getIcon(this.props.transaction.TransactionType)} {this.props.transaction.TransactionType}
+                    {getIcon(this.props.transaction.TransactionType)} {this.props.transaction.TransactionType}
                   </div>
                 </th>
                 <th>{this.props.transaction.TransactionType === 'TORRENT_REP'
@@ -184,7 +196,7 @@ export class TransactionDisplay extends React.Component<TransactionProps, Transa
                 </td>
                 <td>
                   {
-                    this.renderTransaction(this.props.transaction)
+                    renderTransaction(this.props.transaction)
                   }
                 </td>
                 <td>
