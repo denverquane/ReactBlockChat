@@ -39,7 +39,7 @@ export class BlockDisplay extends React.Component<BlockProps, BlockState> {
               <th style={{ width: '90%' }}>
                 <Callout
                   icon={null}
-                  title={this.props.block.Transactions[0]
+                  title={this.props.block.Transactions && this.props.block.Transactions[0]
                     ? 'Added on ' + this.props.block.Timestamp
                     : 'Chain created on ' + this.props.block.Timestamp}
                   intent={Intent.PRIMARY}
@@ -55,9 +55,11 @@ export class BlockDisplay extends React.Component<BlockProps, BlockState> {
                     <div style={{ display: 'flex' }}>
 
                       <div style={{ width: '100%', maxWidth: '100%' }}>
-                        <TransactionDisplay
+                        {this.props.block.Transactions ? <TransactionDisplay
                           transaction={this.props.block.Transactions.pop()}
-                        />
+                        /> : <div />
+                        }
+
                       </div>
                     </div>
 
