@@ -6,14 +6,12 @@ import {
   Button,
   Toaster, Position,
   Intent,
-  Tabs, Tab, TabId, Callout, Spinner
+  Tabs, Tab, TabId, Callout, Spinner, InputGroup,
 } from '@blueprintjs/core';
+import { handleStringChange } from '@blueprintjs/docs-theme';
 import { renderBlock, renderSimpleBlock, Block } from './Block';
 
 import Sockette from 'sockette';
-
-// const logo = require('./logo.svg');
-export const BLOCKCHAIN_IP = 'http://localhost:5000';
 
 const MyToaster = Toaster.create({
   className: 'my-toaster',
@@ -29,6 +27,7 @@ interface SampleState {
   blocks: Block[];
   openOverlay: boolean;
   currentTab: TabId;
+  blockchainIP: string;
 }
 
 function renderSpinner(status: string) {
@@ -132,6 +131,7 @@ export default class App extends React.Component<SampleProps, SampleState> {
       blocks: [],
       openOverlay: false,
       currentTab: 'Home',
+      blockchainIP: 'localhost:5000'
     };
     this.getBlocks = this.getBlocks.bind(this);
   }
@@ -144,12 +144,65 @@ export default class App extends React.Component<SampleProps, SampleState> {
     this.getBlocks();
   }
 
+  /*tslint:disable*/
+  handleIpChange = handleStringChange((blockchainIP: string) => {
+    this.setState({ blockchainIP });
+    this.ws.close();
+    this.ws = new Sockette('ws://' + blockchainIP + '/ws', {
+      timeout: 5e3,
+      maxAttempts: 10,
+      onopen: (e: any) => {
+        MyToaster.clear();
+        this.setState({ ...this.state, connectionStatus: 'Connected' })
+        MyToaster.show({
+          message: 'Connected to Blockchain Server!',
+          intent: Intent.SUCCESS,
+        });
+      },
+      onmessage: (e: any) => {
+        console.log('Received:', e.data);
+        var recent: Block = e.data
+        this.setState({ ...this.state, recentBlock: recent });
+        console.log(e.data.Nonce)
+      },
+      onreconnect: (e: any) => {
+        this.setState({ ...this.state, connectionStatus: 'Reconnecting' });
+        MyToaster.show({
+          message: 'Reconnecting to Blockchain Server...',
+          intent: Intent.WARNING,
+        })
+      },
+      onmaximum: (e: any) => {
+        MyToaster.clear();
+        this.setState({ ...this.state, connectionStatus: 'Not Connecting' })
+        MyToaster.show({
+          message: 'Maximum reconnect attempts to Blockchain Server; please refresh the page',
+          intent: Intent.DANGER,
+          timeout: 10000
+        });
+      },
+      // onclose: (e: any) => MyToaster.show({
+      //   message: 'Can\'t reach Blockchain server... Is it running?',
+      //   intent: Intent.DANGER,
+      // }),
+      onerror: (e: any) => {
+        MyToaster.clear();
+        this.setState({ ...this.state, connectionStatus: 'Disconnected' })
+        MyToaster.show({
+          message: 'Error connecting to Blockchain Server!',
+          intent: Intent.DANGER,
+        });
+      }
+    });
+  })
+
   render() {
     /*tslint:disable*/
     console.log('Rerendered')
     /*tslint:enable*/
     return (
       <div>
+        <InputGroup defaultValue="localhost:5000" onChange={this.handleIpChange}/>
         {renderTitle(this.state.connectionStatus, this.state.blocks[0])}
         <h1 className="App-title" style={{ display: 'flex' }}>GoBlockShare!</h1>
         <Tabs id="MainPageTabs" onChange={this.handleTabChange} selectedTabId={this.state.currentTab}>
@@ -202,7 +255,7 @@ export default class App extends React.Component<SampleProps, SampleState> {
   }
 
   getBlocks() {
-    fetch(BLOCKCHAIN_IP + '/blockchain')
+    fetch('http://' + this.state.blockchainIP + '/blockchain')
       .then(results => {
         return results.json();
       }).then(data => {
